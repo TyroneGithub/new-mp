@@ -205,7 +205,7 @@ orderList (struct customer* arrCustomer, int customerNumber){
 		printf("\n\tYou haven\'t ordered yet\n");
 	}
 	else{
-		for(x = 0; x < arrCustomer[customerNumber - 1].numOrder - 1; x++){
+		for(x = 0; x < arrCustomer[customerNumber - 1].numOrder; x++){
 		printf("\t(%d) ",x+1);
 		for(y = 0; y < foodList[arrCustomer[customerNumber - 1].order[x].food - 1].name[y]; y++)
 			printf("%c",foodList[arrCustomer[customerNumber - 1].order[x].food - 1].name[y]);
@@ -235,7 +235,7 @@ char
 			strcpy(status, "Pending");
 			break;
 		default:
-		//	strcpy(status, "AA");
+			strcpy(status, "");
 			break;
 	}
 	return status; 
