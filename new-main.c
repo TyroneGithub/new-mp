@@ -1,7 +1,7 @@
 /***
 Programmed by: Tyrone Sta. Maria S11A 
 Description:
-Last modified: 11-16-19
+Last modified: 11-17-19
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -207,8 +207,8 @@ orderList (struct customer* arrCustomer, int customerNumber){
 	else{
 		for(x = 0; x < arrCustomer[customerNumber - 1].numOrder; x++){
 		printf("\t(%d) ",x+1);
-		for(y = 0; y < foodList[arrCustomer[customerNumber - 1].order[x].food - 1].name[y]; y++)
-			printf("%c",foodList[arrCustomer[customerNumber - 1].order[x].food - 1].name[y]);
+		//for(y = 0; y < foodList[arrCustomer[customerNumber - 1].order[x].food - 1].name[y]; y++)
+			printf("%s",foodList[arrCustomer[customerNumber - 1].order[x].food - 1].name);
 		
 		printf("\t%s", orderStatus(arrCustomer, customerNumber, x));
 	//	printf("%c", arrCustomer[customerNumber - 1].order[0].status[0]);
@@ -344,6 +344,7 @@ waiter (struct customer* arrCustomer)
 					sendOrder(arrCustomer);
 				break;
 			case 2:
+					viewPending(arrCustomer);
 				break;
 			case 3:
 				break;
@@ -369,26 +370,41 @@ sendOrder (struct customer* arrCustomer)
 	int i, j;
 	for(i = 0; i < 20; i++){
 		if(arrCustomer[i].id != 0){
-			for(j = 0; j < arrCustomer[i].numOrder - 1; j++){
-				if(arrCustomer[i].order[j].status[0] == 'W'){
+			for(j = 0; j < arrCustomer[i].numOrder; j++){
+				if(arrCustomer[i].order[j].status[0] == 'W')
 					arrCustomer[i].order[j].status[0] = 'P';
-					printf("\n\tOrders sent!\n");
-					waiter(arrCustomer);
-				}
-				else{
-					printf("\n\tNo orders to be sent at the moment\n");
-					waiter(arrCustomer);
-				}
-			
+					//printf("%c",arrCustomer[i].order[j].status[0]);
 			}
+		
 		}			
 	}
-	
+	printf("\n\tOrders sent!\n");
+	waiter(arrCustomer);
 }
 
 void
 viewPending(struct customer* arrCustomer)
 {
+	short i, j, k;
+	struct food foodList[] = {
+	{1, 50.00, "Siomai\0"}, {2, 90.00, "Siopao\0"}, {3, 110.00, "Pares\0"},
+	{4, 115.00, "Mami\0"}, {5, 85.00, "Chicken\0"}
+	};
+	printf("\n\tPending Orders:\n");
+	printf("\t");
+	for(k = 1; k <= 17; k++)
+		printf("==");
+	printf("\n");
+	printf("\t%-10s %5s","Food","Ordered by\n");
+	for(i = 0; i < 20; i++){
+		if(arrCustomer[i].id != 0){
+			for(j = 0; j < arrCustomer[i].numOrder ; j++){
+				if(arrCustomer[i].order[j].status[0] == 'P')
+				printf("\t%-10s %5s %02d\n", foodList[arrCustomer[i].order[j].food -1].name,"Customer no.",arrCustomer[i].id);
+			}
+		}
+	}
+	waiter(arrCustomer);
 	
 }
 
