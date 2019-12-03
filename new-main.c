@@ -1,7 +1,7 @@
 /***
 Programmed by: Tyrone Sta. Maria S11A 
 Description:
-Last modified: 12-02-19
+Last modified: 12-03-19
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,20 +39,22 @@ struct food
 /* function declarations to avoid implicit declaration warning */
 
 /* VOID FUNCTIONS */
-void mainMenu(struct customer*);
-void customer(struct customer*);
-void customerMenu (struct customer* ,int customerNumber);
-void foodMenu(struct customer*, int customerNumber);
-void orderList(struct customer*, int customerNumber);
-void sendOrder (struct customer* arrCustomer);
-void viewOrder(struct customer* arrCustomer);
-void chef(struct customer* arrCustomer);
-void cookOrder(struct customer* arrCustomer);
-void chefViewOrder(struct customer* arrCustomer);
-void chefDeliverOrder(struct customer* arrCustomer);
-void waiterSendDish(struct customer* arrCustomer);
-void customerPay(struct customer* arrCustomer, int customerNumber);
-void waiterDisplayIncome(struct customer* arrCustomer);
+void mainMenu(struct customer*, bool* boolRestoClose);
+void customer(struct customer*, bool* boolRestoClosed);
+void customerMenu (struct customer* ,int customerNumber, bool* boolRestoClosed);
+void foodMenu(struct customer*, int customerNumber, bool* boolRestoClosed);
+void orderList(struct customer*, int customerNumber, bool* boolRestoClosed);
+void waiter (struct customer*, bool* boolRestoClosed);
+void sendOrder (struct customer* arrCustomer, bool* boolRestoClosed);
+void viewOrder(struct customer* arrCustomer, bool* boolRestoClosed);
+void chef(struct customer* arrCustomer, bool* boolRestoClosed);
+void cookOrder(struct customer* arrCustomer, bool* boolRestoClosed);
+void chefViewOrder(struct customer* arrCustomer, bool* boolRestoClosed);
+void chefDeliverOrder(struct customer* arrCustomer, bool* boolRestoClosed);
+void waiterSendDish(struct customer* arrCustomer, bool* boolRestoClosed);
+void customerPay(struct customer* arrCustomer, int customerNumber, bool* boolRestoClosed);
+void waiterDisplayIncome(struct customer* arrCustomer, bool* boolRestoClosed);
+void waiterCloseResto(struct customer*, bool* boolRestoClosed);
 
 /* VALUE RETURNING FUNCTIONS*/
 char* customerStatus (struct customer* arrCustomer, int customerNumber);
@@ -166,7 +168,7 @@ countTotalCust (struct customer* arrCustomer)
 
 /******  CUSTOMER FUNCTIONS START   ******/
 void
-foodMenu (struct customer* arrCustomer, int customerNumber)
+foodMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoClosed)
 {
 	short i, j, k, x; //iteration variables
 	short orderNum = arrCustomer[customerNumber - 1].numOrder;
@@ -238,7 +240,7 @@ foodMenu (struct customer* arrCustomer, int customerNumber)
 							exception = true;
 							arrCustomer[customerNumber - 1].numOrder++;
 						}
-						else if(confirmNumOrder == 'N' || confirmNumOrder== 'n' )
+						else if(confirmNumOrder == 'N' || confirmNumOrder== 'n')
 							printf("\n\tThank you for ordering!");
 							
 						else{
@@ -257,14 +259,12 @@ foodMenu (struct customer* arrCustomer, int customerNumber)
 		else
 			printf("\n\tMaximum number of orders reached. Proceeding to checkout\n\n");
 	}
-	customerMenu(arrCustomer, customerNumber);
+	customerMenu(arrCustomer, customerNumber, boolRestoClosed);
 }
 	
 
-
-
 void 
-customer (struct customer* arrCustomer)
+customer (struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	int option;
 	short x ,y;
@@ -304,7 +304,7 @@ customer (struct customer* arrCustomer)
 			case 1:
 				for(x = 0; x < MAXCUST; x++){
 						
-						if(orderCount < MAX_ORDER && totalCustCount < MAXCUST){
+						if(orderCount < MAX_ORDER && totalCustCount < MAXCUST && !*boolRestoClosed){
 							if(customerCount < 5){
 								if(arrCustomer[x].id == 0){
 								
@@ -312,18 +312,18 @@ customer (struct customer* arrCustomer)
 									arrCustomer[x].status[0] = 'W';
 									printf("\n\tYour customer number is: %02d\n", arrCustomer[x].id);	
 									printf("\n");
-									foodMenu(arrCustomer, arrCustomer[x].id);
+									foodMenu(arrCustomer, arrCustomer[x].id, boolRestoClosed);
 								
 								}
 							}
 							else{
 								printf("\n\tRestaurant is Full!\n\n");
-								customer(arrCustomer);		
+								customer(arrCustomer, boolRestoClosed);		
 							}
 						}
 						else{
 							printf("\n\tThe restaurant is now closed.\n\n");
-							mainMenu(arrCustomer);
+							mainMenu(arrCustomer, boolRestoClosed);
 						}
 					}
 				
@@ -352,13 +352,13 @@ customer (struct customer* arrCustomer)
 								empty_stdin();
 							}
 							else
-								customerMenu(arrCustomer, nCustomerNumber);
+								customerMenu(arrCustomer, nCustomerNumber, boolRestoClosed);
 					}
 				}
 				break;
 			case 3:
-				system("cls"); 
-				mainMenu(arrCustomer);
+				system("cls");
+				mainMenu(arrCustomer, boolRestoClosed);
 				break;
 			default:
 				exception = true;
@@ -370,7 +370,7 @@ customer (struct customer* arrCustomer)
 }
 
 void
-orderList (struct customer* arrCustomer, int customerNumber){
+orderList (struct customer* arrCustomer, int customerNumber, bool* boolRestoClosed){
 	short x, y, z;
 	float sum;
 	struct food foodList[] = {
@@ -394,13 +394,13 @@ orderList (struct customer* arrCustomer, int customerNumber){
 	}
 	
 	free (orderStatus(arrCustomer, customerNumber, x));
-	customerMenu(arrCustomer, customerNumber);
+	customerMenu(arrCustomer, customerNumber, boolRestoClosed);
 	
 }
 
 
 void
-customerMenu (struct customer* arrCustomer, int customerNumber)
+customerMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoClosed)
 {
 	bool found = false; // indicator if an array element is existing
 	bool exception = true; // exception handler
@@ -424,7 +424,7 @@ customerMenu (struct customer* arrCustomer, int customerNumber)
 		
 		switch(menuChoice){
 			case 1:
-				orderList(arrCustomer, customerNumber);
+				orderList(arrCustomer, customerNumber, boolRestoClosed);
 				break;
 			case 2:
 				printf("\n\tCustomer number: %02d\n", customerNumber);
@@ -432,11 +432,11 @@ customerMenu (struct customer* arrCustomer, int customerNumber)
 				exception = true;
 				break;
 			case 3:
-				customerPay(arrCustomer, customerNumber);
+				customerPay(arrCustomer, customerNumber, boolRestoClosed);
 				break;
-			case 4:
-				system("cls"); 
-				mainMenu(arrCustomer);
+			case 4: 
+				system("cls");
+				mainMenu(arrCustomer, boolRestoClosed);
 				break;
 			default:
 				exception = true;
@@ -448,7 +448,7 @@ customerMenu (struct customer* arrCustomer, int customerNumber)
 }
 
 void
-customerPay(struct customer* arrCustomer, int customerNumber)
+customerPay(struct customer* arrCustomer, int customerNumber, bool* boolRestoClosed)
 {
 	short x, y, z;
 	bool boolException = true;
@@ -463,18 +463,18 @@ customerPay(struct customer* arrCustomer, int customerNumber)
 	for(x = 0; x < arrCustomer[customerNumber - 1].numOrder; x++){
 		if(arrCustomer[customerNumber - 1].order[x].status[0] == 'E'){
 			fTotalPrice += foodList[arrCustomer[customerNumber - 1].order[x].food - 1].price;
-			printf("\t(#%d) ",foodList[arrCustomer[customerNumber - 1].order[x].food - 1].id);
+			printf("\t(#%03d) ",foodList[arrCustomer[customerNumber - 1].order[x].food - 1].id);
 			printf("%-15s%10.2f\n",foodList[arrCustomer[customerNumber - 1].order[x].food - 1].name,
 								   foodList[arrCustomer[customerNumber - 1].order[x].food - 1].price);
 			printf("\n");	
 		}
 		else if(arrCustomer[customerNumber - 1].order[x].status[0] == 'A'){
 			printf("\n\tYou have already paid.\n\n");
-			customerMenu(arrCustomer,customerNumber);
+			customerMenu(arrCustomer,customerNumber, boolRestoClosed);
 		}
 		else{
 			printf("\n\tThe food is not served yet.\n\n");
-			customerMenu(arrCustomer,customerNumber);
+			customerMenu(arrCustomer,customerNumber, boolRestoClosed);
 		}
 			
 	}
@@ -500,7 +500,7 @@ customerPay(struct customer* arrCustomer, int customerNumber)
 		
 	}
 
-	customerMenu(arrCustomer,customerNumber);
+	customerMenu(arrCustomer,customerNumber, boolRestoClosed);
 }
 
 /******  CUSTOMER FUNCTIONS END   ******/
@@ -510,7 +510,7 @@ customerPay(struct customer* arrCustomer, int customerNumber)
 
 /*****   WAITER FUNCTIONS START    *******/
 void
-waiter (struct customer* arrCustomer)
+waiter (struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	short nOption;
 	short i, j;
@@ -528,7 +528,8 @@ waiter (struct customer* arrCustomer)
 		printf("\t(2) View Orders\n");
 		printf("\t(3) Serve dish\n");
 		printf("\t(4) View paid\n");
-		printf("\t(5) Exit\n");
+		printf("\t(5) Close Restaurant\n");
+		printf("\t(6) Exit\n");
 		printf("\tInput: ");
 		
 		scanf("%d",&nOption);
@@ -540,30 +541,33 @@ waiter (struct customer* arrCustomer)
 		switch(nOption){
 			case 1:
 				if(nCustomerCount > 0)
-					sendOrder(arrCustomer);
+					sendOrder(arrCustomer, boolRestoClosed);
 				else{
 					printf("\tNo customers at the moment\n");
 					exception = true;
 				}	
 				break;
 			case 2:
-				viewOrder(arrCustomer);
+				viewOrder(arrCustomer, boolRestoClosed);
 				break;
 			case 3:
 				/*** THIS FUNCTION IS SUBJECT TO CHANGE WIEEE ***/
 				if(nCustomerCount > 0) 
-					waiterSendDish(arrCustomer);
+					waiterSendDish(arrCustomer, boolRestoClosed);
 				else{
 					printf("\tNo customers at the moment\n");
 					exception = true;	
 				}
 				break;
 			case 4:
-				waiterDisplayIncome(arrCustomer);
+				waiterDisplayIncome(arrCustomer, boolRestoClosed);
 				break;
 			case 5:
-				system("cls"); 
-				mainMenu(arrCustomer);
+				waiterCloseResto(arrCustomer,boolRestoClosed);
+				break;
+			case 6:
+				system("cls");
+				mainMenu(arrCustomer, boolRestoClosed);
 				break;
 			default:
 				exception = true;
@@ -576,7 +580,7 @@ waiter (struct customer* arrCustomer)
 
 
 void 
-sendOrder (struct customer* arrCustomer)
+sendOrder (struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	int i, j;
 	char *sMessage = malloc(75);
@@ -595,11 +599,11 @@ sendOrder (struct customer* arrCustomer)
 	
 	printf("\n\t%s\n\n",sMessage);
 	free(sMessage);
-	waiter(arrCustomer);
+	waiter(arrCustomer, boolRestoClosed);
 }
 
 void
-viewOrder(struct customer* arrCustomer)
+viewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	char *orderStat = malloc(50);
 	short i, j, k;
@@ -626,12 +630,12 @@ viewOrder(struct customer* arrCustomer)
 	}
 	free(orderStat);
 	free(food);
-	waiter(arrCustomer);
+	waiter(arrCustomer, boolRestoClosed);
 	
 }
 
 void 
-waiterSendDish(struct customer* arrCustomer)
+waiterSendDish(struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	short i, j;
 	short nCustomerCount = 0;
@@ -663,11 +667,11 @@ waiterSendDish(struct customer* arrCustomer)
 	}
 	printf("\n\t%s\n\n",sMessage);
 	free(sMessage);
-	waiter(arrCustomer);
+	waiter(arrCustomer, boolRestoClosed);
 }
 
 void 
-waiterDisplayIncome(struct customer* arrCustomer)
+waiterDisplayIncome(struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	short i,j;
 	float fTotalPaid = 0;
@@ -690,15 +694,40 @@ waiterDisplayIncome(struct customer* arrCustomer)
 	
 	printf("\n\tTotal Income: %.2f\n",fTotalIncome);
 	
-	waiter(arrCustomer);
+	waiter(arrCustomer, boolRestoClosed);
 	
+}
+void 
+waiterCloseResto(struct customer* arrCustomer ,bool* boolRestoClosed)
+{
+	short i, j;
+	short countPaid = 0;
+	short totalCust;
+	char *sMessage = malloc(75);
+	totalCust = countTotalCust(arrCustomer);
+	for(i = 0; i < totalCust ; i++){
+		if(arrCustomer[i].status[0] == 'P')
+			countPaid++;
+	}
+	if(countPaid == totalCust){
+		*boolRestoClosed = true;
+		strcpy(sMessage,"The restaurant is now closed!");
+	}
+	else{
+		*boolRestoClosed = false;
+		strcpy(sMessage,"Customer payments are not yet complete");
+	}
+				
+		
+	printf("\n\t%s\n\n",sMessage);
+	mainMenu(arrCustomer, boolRestoClosed);
 }
 /*****   WAITER FUNCTIONS END    *******/
 
 
 /*****   CHEF FUNCTIONS START    *******/
 void
-chef(struct customer* arrCustomer)
+chef(struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	short nOption;
 	short i, j;
@@ -726,17 +755,17 @@ chef(struct customer* arrCustomer)
 					exception = true;
 				}
 				else
-					chefViewOrder(arrCustomer);
+					chefViewOrder(arrCustomer, boolRestoClosed);
 				break;
 			case 2:
-				cookOrder(arrCustomer);
+				cookOrder(arrCustomer, boolRestoClosed);
 				break;
 			case 3:
-				chefDeliverOrder(arrCustomer);
+				chefDeliverOrder(arrCustomer, boolRestoClosed);
 				break;
 			case 4:
-				system("cls"); 
-				mainMenu(arrCustomer);
+				system("cls");
+				mainMenu(arrCustomer, boolRestoClosed);
 				break;
 			default:
 				exception = true;
@@ -749,7 +778,7 @@ chef(struct customer* arrCustomer)
 
 
 void
-cookOrder(struct customer* arrCustomer)
+cookOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	short i, j;
 	short cookedDishes = 0;
@@ -775,11 +804,11 @@ cookOrder(struct customer* arrCustomer)
 	}
 
 	printf("\n\t%s\n %d",sMessage, cookedDishes);
-	chef(arrCustomer);
+	chef(arrCustomer, boolRestoClosed);
 }
 
 void
-chefViewOrder(struct customer* arrCustomer)
+chefViewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	char *orderStat = malloc(50);
 	short i, j, k;
@@ -814,11 +843,11 @@ chefViewOrder(struct customer* arrCustomer)
 	
 	free(orderStat);
 	free(food);
-	chef(arrCustomer);
+	chef(arrCustomer, boolRestoClosed);
 } 
 
 void
-chefDeliverOrder(struct customer* arrCustomer)
+chefDeliverOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	short i, j;
 	short cookedDishes = 0;
@@ -843,16 +872,14 @@ chefDeliverOrder(struct customer* arrCustomer)
 	}
 	printf("\n\t%s\n\n",sMessage);
 	free(sMessage);
-	chef(arrCustomer);
+	chef(arrCustomer, boolRestoClosed);
 }
 
 /*****   CHEF FUNCTIONS END   *******/
 
 
-
-
 void 
-mainMenu (struct customer* arrCustomer)
+mainMenu (struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	short x, y; // iteration variables 
 	
@@ -892,15 +919,15 @@ mainMenu (struct customer* arrCustomer)
 		switch(nOption){
 		case 1:
 			system("cls");
-			customer(arrCustomer);
+			customer(arrCustomer, boolRestoClosed);
 			break;
 		case 2:
-			system("cls"); 
-			waiter(arrCustomer);
+			system("cls");
+			waiter(arrCustomer, boolRestoClosed);
 			break;
 		case 3:
-			system("cls"); 
-			chef(arrCustomer);
+			system("cls");
+			chef(arrCustomer, boolRestoClosed);
 			break;
 		case 4:
 			exit(0);
@@ -920,7 +947,7 @@ mainMenu (struct customer* arrCustomer)
 int 
 main()
 {
-
+	bool boolRestoClosed = false;
 	struct customer arrCustomer[] = {
 	{0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"}, {0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"}, {0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"},
 	{0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"}, {0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"}, {0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"},
@@ -933,7 +960,7 @@ main()
 	
 
 	
-	mainMenu(arrCustomer);
+	mainMenu(arrCustomer, &boolRestoClosed);
 	
 	return 0;
 }
