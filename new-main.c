@@ -7,6 +7,8 @@ Last modified: 12-02-19
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <conio.h>
+
 #define MAXCUST 20
 #define MAX_ORDER 20
 struct order
@@ -274,7 +276,11 @@ customer (struct customer* arrCustomer)
 	bool exception2 = true;
 	short nCustomerNumber;
 	
-
+	printf("\n\n\t%21s\n","Customer");
+	printf("\t");
+	for(x=1; x<=34; x++)
+		printf("-");
+	printf("\n");
 	while (exception){
 		printf("\tOld or new customer?\n");
 		printf("\t(1) New\n");
@@ -351,6 +357,7 @@ customer (struct customer* arrCustomer)
 				}
 				break;
 			case 3:
+				system("cls"); 
 				mainMenu(arrCustomer);
 				break;
 			default:
@@ -408,7 +415,7 @@ customerMenu (struct customer* arrCustomer, int customerNumber)
 		printf("\n");
 		
 		printf("\t(1) Order Status\n");
-		printf("\t(2) Display Customer Number\n");
+		printf("\t(2) Display customer number and status\n");
 		printf("\t(3) Pay\n");
 		printf("\t(4) Exit\n");
 		printf("\tInput: ");
@@ -428,6 +435,7 @@ customerMenu (struct customer* arrCustomer, int customerNumber)
 				customerPay(arrCustomer, customerNumber);
 				break;
 			case 4:
+				system("cls"); 
 				mainMenu(arrCustomer);
 				break;
 			default:
@@ -506,7 +514,10 @@ waiter (struct customer* arrCustomer)
 {
 	short nOption;
 	short i, j;
+	short nCustomerCount;
 	bool exception = true;
+	
+
 	while(exception){
 	
 		printf("\n\t= = = = = = WAITER MENU = = = = = \n\t");
@@ -518,32 +529,40 @@ waiter (struct customer* arrCustomer)
 		printf("\t(3) Serve dish\n");
 		printf("\t(4) View paid\n");
 		printf("\t(5) Exit\n");
-		
-		
 		printf("\tInput: ");
+		
 		scanf("%d",&nOption);
 		exception = false;
+		
+		/* check if there are current customers who are not yet paid*/ 
+		nCustomerCount = countCustomers(arrCustomer);
+		
 		switch(nOption){
 			case 1:
-				/*** THIS FUNCTION IS SUBJECT TO CHANGE WIEEE ***/
-				if(arrCustomer[0].id == 0){
+				if(nCustomerCount > 0)
+					sendOrder(arrCustomer);
+				else{
 					printf("\tNo customers at the moment\n");
 					exception = true;
-				}
-				else
-					sendOrder(arrCustomer);
+				}	
 				break;
 			case 2:
 				viewOrder(arrCustomer);
 				break;
 			case 3:
-				/*** THIS FUNCTION IS SUBJECT TO CHANGE WIEEE ***/ 
-				waiterSendDish(arrCustomer);
+				/*** THIS FUNCTION IS SUBJECT TO CHANGE WIEEE ***/
+				if(nCustomerCount > 0) 
+					waiterSendDish(arrCustomer);
+				else{
+					printf("\tNo customers at the moment\n");
+					exception = true;	
+				}
 				break;
 			case 4:
 				waiterDisplayIncome(arrCustomer);
 				break;
 			case 5:
+				system("cls"); 
 				mainMenu(arrCustomer);
 				break;
 			default:
@@ -716,6 +735,7 @@ chef(struct customer* arrCustomer)
 				chefDeliverOrder(arrCustomer);
 				break;
 			case 4:
+				system("cls"); 
 				mainMenu(arrCustomer);
 				break;
 			default:
@@ -744,7 +764,7 @@ cookOrder(struct customer* arrCustomer)
 					if(cookedDishes >= 3)
 						break;
 						
-				}
+				}	
 				else
 					strcpy(sMessage,"No pending orders available" );
 				
@@ -871,17 +891,15 @@ mainMenu (struct customer* arrCustomer)
 		
 		switch(nOption){
 		case 1:
-			printf("\n\n\t%21s\n","Customer");
-			printf("\t");
-			for(x=1; x<=34; x++)
-				printf("-");
-			printf("\n");
+			system("cls");
 			customer(arrCustomer);
 			break;
-		case 2: 
+		case 2:
+			system("cls"); 
 			waiter(arrCustomer);
 			break;
 		case 3:
+			system("cls"); 
 			chef(arrCustomer);
 			break;
 		case 4:
@@ -894,6 +912,8 @@ mainMenu (struct customer* arrCustomer)
 			break;
 		}
 	}
+	
+	
 }
 
 
