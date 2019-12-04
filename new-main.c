@@ -464,7 +464,7 @@ customerPay(struct customer* arrCustomer, int customerNumber, bool* boolRestoClo
 		if(arrCustomer[customerNumber - 1].order[x].status[0] == 'E'){
 			fTotalPrice += foodList[arrCustomer[customerNumber - 1].order[x].food - 1].price;
 			printf("\t(#%03d) ",foodList[arrCustomer[customerNumber - 1].order[x].food - 1].id);
-			printf("%-15s%10.2f\n",foodList[arrCustomer[customerNumber - 1].order[x].food - 1].name,
+			printf("%-15s%7.2f\n",foodList[arrCustomer[customerNumber - 1].order[x].food - 1].name,
 								   foodList[arrCustomer[customerNumber - 1].order[x].food - 1].price);
 			printf("\n");	
 		}
@@ -520,15 +520,15 @@ waiter (struct customer* arrCustomer, bool* boolRestoClosed)
 
 	while(exception){
 	
-		printf("\n\t= = = = = = WAITER MENU = = = = = \n\t");
-		for(i=1; i<=17; i++)
-			printf("==");
+		printf("\n\t%22s\n\t","Waiter Menu");
+		for(i=1; i<=34; i++)
+			printf("-");
 			
 		printf("\n\t(1) Send orders\n");
-		printf("\t(2) View Orders\n");
+		printf("\t(2) View orders\n");
 		printf("\t(3) Serve dish\n");
-		printf("\t(4) View paid\n");
-		printf("\t(5) Close Restaurant\n");
+		printf("\t(4) View daily report\n");
+		printf("\t(5) Close restaurant\n");
 		printf("\t(6) Exit\n");
 		printf("\tInput: ");
 		
@@ -560,6 +560,7 @@ waiter (struct customer* arrCustomer, bool* boolRestoClosed)
 				}
 				break;
 			case 4:
+				system("cls");
 				waiterDisplayIncome(arrCustomer, boolRestoClosed);
 				break;
 			case 5:
@@ -615,8 +616,8 @@ viewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 	};
 	printf("\n\tPending Orders:\n");
 	printf("\t");
-	for(k = 1; k <= 17; k++)
-		printf("==");
+	for(k = 1; k <= 44; k++)
+		printf("-");
 	printf("\n");
 	printf("\t%-10s  %15s  %15s","Ordered By","Food","Status\n");
 	for(i = 0; i < MAXCUST; i++){
@@ -631,6 +632,7 @@ viewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 			}
 		}
 	}
+	printf("\n");
 	free(orderStat);
 	free(food);
 	waiter(arrCustomer, boolRestoClosed);
@@ -656,10 +658,11 @@ waiterSendDish(struct customer* arrCustomer, bool* boolRestoClosed)
 				}
 				else{	
 					if(nCustomerCount > 0){
-						if(nCustomerCount % 3 == 0)
-							break;	
-						else
-							strcpy(sMessage,"No dishes can be served at the moment");
+						strcpy(sMessage,"Dishes Served!");
+//						if(nCustomerCount % 3 == 0)
+//							break;	
+//						else
+//							strcpy(sMessage,"No dishes can be served at the moment");
 					}
 					else
 						strcpy(sMessage,"No dishes can be served at the moment");	
@@ -685,18 +688,32 @@ waiterDisplayIncome(struct customer* arrCustomer, bool* boolRestoClosed)
 	{4, 115.00, "Mami\0"}, {5, 85.00, "Chicken\0"}
 	};
 	
+	
+	printf("\n\t%-15s%12s\n","Customer","Paid");
+	
+	printf("\t");
+	for(i=1; i<=34; i++)
+		printf("-");
+	printf("\n");
+	
 	for(i = 0; i < MAXCUST; i++){
 		if(arrCustomer[i].status[0] == 'P'){
 			for(j = 0; j < arrCustomer[i].numOrder; j++)
 				fTotalPaid += foodList[arrCustomer[i].order[j].food - 1].price;
-			printf("\n\t%-15s%02d%10.2f","Customer no.", i + 1, fTotalPaid);
+			printf("\n\t%s %02d%12.2f","Customer no.", i + 1, fTotalPaid);
 			fTotalIncome += fTotalPaid;
 			fTotalPaid = 0;
 		}
 	}
-	
-	printf("\n\tTotal Income: %.2f\n",fTotalIncome);
-	
+	printf("\n");
+	printf("\t");
+	for(i=1; i<=34; i++)
+		printf("-");
+		
+	printf("\n\n\tTotal Income: %3.2f\n",fTotalIncome);
+	printf("\n\n\tTotal Customers: %3d", countTotalCust(arrCustomer));
+	printf("\n\tCurrent Customers: %d", countCustomers(arrCustomer));
+	printf("\n\tOrders Served: %5d\n\n",countOrders(arrCustomer));
 	waiter(arrCustomer, boolRestoClosed);
 	
 }
@@ -734,12 +751,13 @@ chef(struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	short nOption;
 	short i, j;
+	short nCustomerCount;
 	bool exception = true;
 	while(exception){
 	
-		printf("\n\t= = = = = = CHEF MENU = = = = = \n\t");
-		for(i=1; i<=17; i++)
-			printf("==");
+		printf("\n\t%21s\n\t","Chef Menu");
+		for(i=1; i<=34; i++)
+			printf("-");
 			
 		printf("\n\t(1) View Pending Orders\n");
 		printf("\t(2) Cook Dishes\n");
@@ -750,10 +768,13 @@ chef(struct customer* arrCustomer, bool* boolRestoClosed)
 		printf("\tInput: ");
 		scanf("%d",&nOption);
 		exception = false;
+		
+		nCustomerCount = countCustomers(arrCustomer);
+		
 		switch(nOption){
 			case 1:
 				/*** SUBJECT TO CHANGE WIEEEEE  ***/
-				if(arrCustomer[0].id == 0){
+				if(nCustomerCount == 0){
 					printf("\tNo customers at the moment\n");
 					exception = true;
 				}
@@ -784,7 +805,7 @@ void
 cookOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	short i, j;
-	short nDishes; // N dishes to be cooked where N <= 3
+	short nDishes ; // N dishes to be cooked where N <= 3
 	short cookedDishes = 0; // number dishes being cooked where N <= 3 
 	bool exception = true;
 	char *sMessage = malloc(50);
@@ -800,10 +821,8 @@ cookOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 			fputs("\n\tIncorrect input please try again\n\n",stderr);
 			empty_stdin();
 		}	
-		
-		
+			
 	}
-	
 	
 	for(i = 0; i < MAXCUST; i++){
 		if(arrCustomer[i].id != 0){
@@ -816,8 +835,14 @@ cookOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 						break;
 						
 				}	
-				else
+				else{
+					if(cookedDishes > 0){
+						strcpy(sMessage,"Orders Cooked!" );
+						break;
+					}
 					strcpy(sMessage,"No pending orders available" );
+				}
+					
 				
 			}
 		}
@@ -846,8 +871,8 @@ chefViewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 	};
 	printf("\n\tPending Orders:\n");
 	printf("\t");
-	for(k = 1; k <= 17; k++)
-		printf("==");
+	for(k = 1; k <= 34; k++)
+		printf("-");
 	printf("\n");
 	printf("\t%-10s  %15s  %15s","Ordered By","Food","Status\n");
 	for(i = 0; i < MAXCUST; i++){
@@ -861,7 +886,14 @@ chefViewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 					nCountPending++;
 				}
 				else{
-					strcpy(orderStat, "No pending orders at the moment!");
+					if(nCountPending > 0){
+						if(arrCustomer[i].order[j].status[0] == 'O')
+							strcpy(orderStat,"");
+						else
+							strcpy(orderStat, "No pending orders at the moment!");	
+					}
+					else
+						strcpy(orderStat, "No pending orders at the moment!");
 					
 				}
 					
@@ -889,16 +921,21 @@ chefDeliverOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 					arrCustomer[i].order[j].status[0] = 'D';
 					cookedDishes++;
 					strcpy(sMessage, "Cooked Dishes Delivered!");
-					
 					if(cookedDishes >= 3)
 						break;
 				}
-				else 
+				else {
+					if(cookedDishes > 0 && cookedDishes <= 3){
+						strcpy(sMessage, "Cooked Dishes Delivered!");
+						break;
+					}
 					strcpy(sMessage, "No cooked dishes can be delivered at the moment");
+				}
+					
 			}
 		}
 		if(cookedDishes >= 3)
-			break;		
+			break;
 	}
 	printf("\n\t%s\n\n",sMessage);
 	free(sMessage);
