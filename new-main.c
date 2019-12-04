@@ -622,9 +622,12 @@ viewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 	for(i = 0; i < MAXCUST; i++){
 		if(arrCustomer[i].id != 0){
 			for(j = 0; j < arrCustomer[i].numOrder ; j++){
-				strcpy(orderStat, orderStatus(arrCustomer, arrCustomer[i].id, j));
-				strcpy(food, foodList[arrCustomer[i].order[j].food -1].name);
-				printf("\t%-10s%02d %14s %14s \n","Customer no.",arrCustomer[i].id,food,orderStat);
+				if(arrCustomer[i].order[j].status[0] != 'A'){
+					strcpy(orderStat, orderStatus(arrCustomer, arrCustomer[i].id, j));
+					strcpy(food, foodList[arrCustomer[i].order[j].food -1].name);
+					printf("\t%-10s%02d %14s %14s \n","Customer no.",arrCustomer[i].id,food,orderStat);	
+				}
+				
 			}
 		}
 	}
@@ -781,8 +784,27 @@ void
 cookOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 {
 	short i, j;
-	short cookedDishes = 0;
+	short nDishes; // N dishes to be cooked where N <= 3
+	short cookedDishes = 0; // number dishes being cooked where N <= 3 
+	bool exception = true;
 	char *sMessage = malloc(50);
+	
+	while(exception){
+		
+		printf("\n\tEnter N dishes: ");
+		scanf("%d",&nDishes);
+		exception = false;
+		
+		if(nDishes > 3 || nDishes < 0){
+			exception = true;
+			fputs("\n\tIncorrect input please try again\n\n",stderr);
+			empty_stdin();
+		}	
+		
+		
+	}
+	
+	
 	for(i = 0; i < MAXCUST; i++){
 		if(arrCustomer[i].id != 0){
 			for(j = 0; j < arrCustomer[i].numOrder; j++){
@@ -790,7 +812,7 @@ cookOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 					arrCustomer[i].order[j].status[0] = 'C';
 					cookedDishes++;
 					strcpy(sMessage,"Orders Cooked!" );
-					if(cookedDishes >= 3)
+					if(cookedDishes >= nDishes)
 						break;
 						
 				}	
@@ -799,11 +821,11 @@ cookOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 				
 			}
 		}
-		if(cookedDishes >= 3)
+		if(cookedDishes >= nDishes)
 			break;	
 	}
 
-	printf("\n\t%s\n %d",sMessage, cookedDishes);
+	printf("\n\t%s\n",sMessage);
 	chef(arrCustomer, boolRestoClosed);
 }
 
@@ -813,6 +835,10 @@ chefViewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 	char *orderStat = malloc(50);
 	short i, j, k;
 	char *food = malloc(50);
+	short nCountPending = 0;
+	short nCountTotal;
+	short nCountNotPending = 0;
+	
 	
 	struct food foodList[] = {
 	{1, 50.00, "Siomai\0"}, {2, 90.00, "Siopao\0"}, {3, 110.00, "Pares\0"},
@@ -832,9 +858,13 @@ chefViewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 					strcpy(food, foodList[arrCustomer[i].order[j].food -1].name);
 					printf("\t%-10s%02d %14s %14s \n","Customer no.",arrCustomer[i].id,food,orderStat);	
 					strcpy(orderStat,"");
+					nCountPending++;
 				}
-				else
+				else{
 					strcpy(orderStat, "No pending orders at the moment!");
+					
+				}
+					
 				
 			}
 		}
