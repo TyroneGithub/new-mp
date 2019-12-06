@@ -1,8 +1,13 @@
 /***
 Programmed by: Tyrone Sta. Maria S11A 
-Description:
-Last modified: 12-03-19
+Description: This program simulates a simple process in a restaurant.
+Customer -> Waiter -> Chef then Chef -> Waiter -> Customer
+Last modified: 12-06-19
+[Ackwnoledgements:
+https://fresh2refresh.com/c-programming/c-array-of-structures/
+https://stackoverflow.com/questions/53056369/c-infinite-loop-when-char-input-instead-of-int] 
 */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -77,96 +82,161 @@ empty_stdin(void)
 		c = getchar();
 }
 
+
+/*
+This function returns the whole word of the order's status ex.
+ O = Ordered, E = Eating, P = Pending, C = Cooked, D = Delivered, A = Paid.
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param (int) customerNumber (array index) 
+ this indicates which customer's order should be read in the array index.
+ @param (int) x (array index) this specifies the order that is read by the function 
+ 
+ @return (String) returns a string of the corresponding character input.
+
+*/
 char
 *orderStatus (struct customer* arrCustomer, int customerNumber, int x)
 {
-	char *status = malloc(50);
+	char *cStatus = malloc(50);
 	
 	switch(arrCustomer[customerNumber - 1].order[x].status[0]){
 		case 'O':
-			strcpy(status, "Ordered");
+			strcpy(cStatus, "Ordered");
 			break;
 		case 'E':
-			strcpy(status, "Eating");
+			strcpy(cStatus, "Eating");
 			break;
 		case 'P':
-			strcpy(status, "Pending");
+			strcpy(cStatus, "Pending");
 			break;
 		case 'C':
-			strcpy(status, "Cooked");
+			strcpy(cStatus, "Cooked");
 			break;
 		case 'D':
-			strcpy(status, "Delivered");
+			strcpy(cStatus, "Delivered");
 			break;
 		case 'A':
-			strcpy(status, "Paid");
+			strcpy(cStatus, "Paid");
 			break;
 		default:
-			strcpy(status, "");
+			strcpy(cStatus, "");
 			break;
 	}
-	return status; 
+	return cStatus; 
 }
 
+/*
+This function returns the whole word of the customer's status ex.
+E = Eating, P = Paid, W = Waiting.
 
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param (int) customerNumber (array index) 
+ this indicates which customer's order should be read in the array index.
+ 
+ @return (String) returns a string of the corresponding character input.
+
+*/
 char 
 *customerStatus (struct customer* arrCustomer, int customerNumber)
 {
-	char* status = malloc(50);
+	char* cStatus = malloc(50);
 	switch(arrCustomer[customerNumber - 1].status[0]){
 		case 'W':
-			strcpy(status, "Waiting");
+			strcpy(cStatus, "Waiting");
 			break;
 		case 'E':
-			strcpy(status, "Eating");
+			strcpy(cStatus, "Eating");
 			break;
 		case 'P':
-			strcpy(status, "Paid");
+			strcpy(cStatus, "Paid");
 			break;
 	}
-	return status; 
+	return cStatus; 
 }
+
+
+/*
+This function counts the current number of customers inside the restaurant (customers that haven't paid yet).
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ 
+ @return (short) returns an integer value of the current number of customers
+
+*/
 
 short 
 countCustomers (struct customer* arrCustomer)
 {
 	short x;
-	short customerCount = 0;
+	short nCustomerCount = 0;
 	for(x = 0; x < MAXCUST; x++){
 			if(arrCustomer[x].id > 0 && arrCustomer[x].status[0] != 'P')
-				customerCount++;
+				nCustomerCount++;
 	}
-	return customerCount;
+	return nCustomerCount;
 }
-	
+
+
+/*
+This function counts the total number of orders that has been ordered, served, or paid.
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ 
+ @return (short) returns an integer value of the total number of orders
+
+*/
 short 
 countOrders (struct customer* arrCustomer)	
 {
 	short k, j;
-	short orderCount = 0;
+	short nOrderCount = 0;
 	for(k = 0; k < MAXCUST; k++){
 		if(arrCustomer[k].id != 0){
 			for(j = 0; j < arrCustomer[k].numOrder; j++)
-				orderCount++;
+				nOrderCount++;
 		}
 	}
-	return orderCount;
+	return nOrderCount;
 }
+
+
+/*
+This function counts the total number of customers regardless if paid or not
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ 
+ @return (short) returns an integer value of the total number of customers
+
+*/
 
 short
 countTotalCust (struct customer* arrCustomer)
 {
 	short i;
-	short customerCount = 0;
+	short nCustomerCount = 0;
 	for(i = 0; i < MAXCUST; i++){
 		if(arrCustomer[i].id != 0)
-			customerCount++;
+			nCustomerCount++;
 	}
 	
-	return customerCount;
+	return nCustomerCount;
 }
 
 /******  CUSTOMER FUNCTIONS START   ******/
+
+
+
+/*
+This function handles the ordering of the customer.
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param (int) customerNumber indicates which customer is currently in use.
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ @return (void) no return value
+*/
+
 void
 foodMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoClosed)
 {
@@ -175,9 +245,8 @@ foodMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoClose
 	short orderCount; 
 	bool exception = true; // exception handlers
 	bool exception2 = true;
-	//bool confirmOrder = true;
-	unsigned short nChoice;
-	char confirmNumOrder; 
+	short nChoice;
+	short confirmNumOrder; 
 	
 	
 	struct food foodList[] = {
@@ -208,16 +277,19 @@ foodMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoClose
 		
 		if(arrCustomer[customerNumber - 1].numOrder <= 3){
 			printf("\n\n\tEnter input: ");
-			scanf("%d",&nChoice);
-			
+			scanf(" %d",&nChoice);	
 			exception = false; 
+		
+			
 			switch(nChoice){
 				case 1: case 2:	case 3: case 4:
 				case 5:
+					/* Puts the corresponding order number and order status to its specific array index/position */
 					arrCustomer[customerNumber - 1].order[arrCustomer[customerNumber - 1].numOrder - 1].food = nChoice;
 					arrCustomer[customerNumber - 1].order[arrCustomer[customerNumber - 1].numOrder - 1].status[0] = 'O';
 					orderCount++;
 					break;
+				
 				default:
 					exception = true;
 					exception2 = false;
@@ -228,19 +300,22 @@ foodMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoClose
 			
 			while(exception2){
 				exception2 = false;
+				/* checks if the number of orders is less than the max number of orders per day 
+					(where MAX_ORDER = 20)
+				*/
 				if(orderCount <= MAX_ORDER){
-				
+					
 					if(arrCustomer[customerNumber - 1].numOrder < 3){
 						
-						printf("\n\tWould you like to order again (Y/N)?: ");			
-						scanf(" %c",&confirmNumOrder);	
-					//	confirmNumOrder = getchar();
+						printf("\n\tWould you like to order again?\n\t0 - NO/6 - YES: ");			
+						scanf(" %d",&confirmNumOrder);	
+						//getchar();
 						
-						if(confirmNumOrder == 'Y' || confirmNumOrder == 'y'){
+						if(confirmNumOrder == 6 ){
 							exception = true;
 							arrCustomer[customerNumber - 1].numOrder++;
 						}
-						else if(confirmNumOrder == 'N' || confirmNumOrder== 'n')
+						else if(confirmNumOrder == 0)
 							printf("\n\tThank you for ordering!");
 							
 						else{
@@ -261,16 +336,31 @@ foodMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoClose
 	}
 	customerMenu(arrCustomer, customerNumber, boolRestoClosed);
 }
-	
+
+
+
+/*
+This function indicates whether the customer is a new or old customer.
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ 
+ @return (void) no return value
+*/
+
 
 void 
 customer (struct customer* arrCustomer, bool* boolRestoClosed)
 {
-	int option;
-	short x ,y;
-	short customerCount;
-	short totalCustCount;
-	short orderCount = 0;
+	short nOption; // for selection
+	short x ,y; // iteration variables
+	
+	/* For counting variables refer below to functions countCustomers, 
+	countOrders, countTotalCust */
+	short customerCount; // count current number of customers
+	short totalCustCount; // count total number of customers 
+	short orderCount = 0; // count total number of orders
+		
 	bool found = false; // indicator if an array element is existing
 	bool exception = true; // exception handler
 	bool exception2 = true;
@@ -287,7 +377,7 @@ customer (struct customer* arrCustomer, bool* boolRestoClosed)
 		printf("\t(2) Old\n");
 		printf("\t(3) Main menu\n");
 		printf("\tInput: ");
-		scanf("%d",&option);
+		scanf("%d",&nOption);
 		
 		exception = false;
 		
@@ -300,7 +390,7 @@ customer (struct customer* arrCustomer, bool* boolRestoClosed)
 		/* get number of customers served */
 		totalCustCount = countTotalCust(arrCustomer);
 		
-		switch(option){
+		switch(nOption){
 			case 1:
 				for(x = 0; x < MAXCUST; x++){
 						
@@ -369,10 +459,21 @@ customer (struct customer* arrCustomer, bool* boolRestoClosed)
 	}
 }
 
+
+
+/*
+This function displays the orders of the customer with its status and price.
+
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param (int) customerNumber indicates which customer is currently in use.
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ @return (void) no return value
+*/
+
 void
 orderList (struct customer* arrCustomer, int customerNumber, bool* boolRestoClosed){
-	short x, y, z;
-	float sum;
+	short x, y, z; // iteration variables
 	struct food foodList[] = {
 	{1, 50.00, "Siomai\0"}, {2, 90.00, "Siopao\0"}, {3, 110.00, "Pares\0"},
 	{4, 115.00, "Mami\0"}, {5, 85.00, "Chicken\0"}
@@ -399,6 +500,15 @@ orderList (struct customer* arrCustomer, int customerNumber, bool* boolRestoClos
 }
 
 
+
+/*
+This function serves as the main menu for the customer.
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param (int) customerNumber indicates which customer is currently in use.
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ @return (void) no return value
+*/
 void
 customerMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoClosed)
 {
@@ -447,13 +557,22 @@ customerMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoC
 	}
 }
 
+
+/*
+This function handles the customer payments.
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param (int) customerNumber indicates which customer is currently ordering.
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ @return (void) no return value
+*/
 void
 customerPay(struct customer* arrCustomer, int customerNumber, bool* boolRestoClosed)
 {
-	short x, y, z;
-	bool boolException = true;
-	float fTotalPrice = 0;
-	float fAmountPaid;
+	short x, y, z; // iteration variables 
+	bool boolException = true; // exception handler
+	float fTotalPrice = 0; // total price of ordered food/s 
+	float fAmountPaid; // amount paid by the customer
 	struct food foodList[] = {
 	{1, 50.00, "Siomai\0"}, {2, 90.00, "Siopao\0"}, {3, 110.00, "Pares\0"},
 	{4, 115.00, "Mami\0"}, {5, 85.00, "Chicken\0"}
@@ -495,7 +614,6 @@ customerPay(struct customer* arrCustomer, int customerNumber, bool* boolRestoClo
 		else{
 			printf("\n\tInvalid amount paid\n\n");
 			boolException = true;
-			//empty_stdin();
 		}
 		
 	}
@@ -509,13 +627,23 @@ customerPay(struct customer* arrCustomer, int customerNumber, bool* boolRestoClo
 
 
 /*****   WAITER FUNCTIONS START    *******/
+
+
+
+/*
+This function serves as the main menu for the waiter.
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ @return (void) no return value
+*/
 void
 waiter (struct customer* arrCustomer, bool* boolRestoClosed)
 {
-	short nOption;
-	short i, j;
-	short nCustomerCount;
-	bool exception = true;
+	short nOption; // input option for menu 
+	short i, j; // iteration varaibles
+	short nCustomerCount; // counts current number of customers 
+	bool exception = true; // exception handler
 	
 
 	while(exception){
@@ -579,12 +707,19 @@ waiter (struct customer* arrCustomer, bool* boolRestoClosed)
 	}
 }
 
-
+/*
+This function sends the order to the chef wherein the customers' orders will hold a PENDING status.
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ @return (void) no return value
+*/
 void 
 sendOrder (struct customer* arrCustomer, bool* boolRestoClosed)
 {
-	int i, j;
-	char *sMessage = malloc(75);
+	int i, j; // iteration variables 
+	char *sMessage = malloc(75); // string for output message
+	
 	for(i = 0; i < MAXCUST; i++){
 		if(arrCustomer[i].id != 0){
 			for(j = 0; j < arrCustomer[i].numOrder; j++){
@@ -603,12 +738,20 @@ sendOrder (struct customer* arrCustomer, bool* boolRestoClosed)
 	waiter(arrCustomer, boolRestoClosed);
 }
 
+
+/*
+This function displays the customers' orders and its status.
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ @return (void) no return value
+*/
 void
 viewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 {
-	char *orderStat = malloc(50);
-	short i, j, k;
-	char *food = malloc(50);
+	char *orderStat = malloc(50); // string for order status 
+	short i, j, k; // iteration variables 
+	char *food = malloc(50); // string for food 
 	
 	struct food foodList[] = {
 	{1, 50.00, "Siomai\0"}, {2, 90.00, "Siopao\0"}, {3, 110.00, "Pares\0"},
@@ -639,12 +782,21 @@ viewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 	
 }
 
+
+
+/*
+This function serves as the main menu for the waiter.
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ @return (void) no return value
+*/
 void 
 waiterSendDish(struct customer* arrCustomer, bool* boolRestoClosed)
 {
-	short i, j;
-	short nCustomerCount = 0;
-	char *sMessage = malloc(75);
+	short i, j; // iteration variables 
+	short nCustomerCount = 0; // count customers to be served 
+	char *sMessage = malloc(75); // string for output message 
 	
 	for(i = 0; i < MAXCUST; i++){
 		if(arrCustomer[i].id != 0){
@@ -657,13 +809,8 @@ waiterSendDish(struct customer* arrCustomer, bool* boolRestoClosed)
 					
 				}
 				else{	
-					if(nCustomerCount > 0){
+					if(nCustomerCount > 0)
 						strcpy(sMessage,"Dishes Served!");
-//						if(nCustomerCount % 3 == 0)
-//							break;	
-//						else
-//							strcpy(sMessage,"No dishes can be served at the moment");
-					}
 					else
 						strcpy(sMessage,"No dishes can be served at the moment");	
 				}
@@ -676,12 +823,22 @@ waiterSendDish(struct customer* arrCustomer, bool* boolRestoClosed)
 	waiter(arrCustomer, boolRestoClosed);
 }
 
+
+/*
+This function displays the income, current number of customers, 
+total number of customers, and number of orders served
+of the restaurant .
+@param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+the different data of the customer (customer id, orders, number of orders, status).
+@param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+@return (void) no return value
+*/
 void 
 waiterDisplayIncome(struct customer* arrCustomer, bool* boolRestoClosed)
 {
-	short i,j;
-	float fTotalPaid = 0;
-	float fTotalIncome = 0;
+	short i,j; // iteration variable 
+	float fTotalPaid = 0; // total paid price for the food per customer
+	float fTotalIncome = 0; // total income for the day 
 	
 	struct food foodList[] = {
 	{1, 50.00, "Siomai\0"}, {2, 90.00, "Siopao\0"}, {3, 110.00, "Pares\0"},
@@ -717,14 +874,27 @@ waiterDisplayIncome(struct customer* arrCustomer, bool* boolRestoClosed)
 	waiter(arrCustomer, boolRestoClosed);
 	
 }
+
+
+/*
+This function closes the restaurant if all the current customers have already paid. This prevents 
+new customers to enter the restaurant.  
+@param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+the different data of the customer (customer id, orders, number of orders, status).
+@param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+@return (void) no return value
+*/
 void 
 waiterCloseResto(struct customer* arrCustomer ,bool* boolRestoClosed)
 {
-	short i, j;
-	short countPaid = 0;
-	short totalCust;
-	char *sMessage = malloc(75);
+	short i, j; // iteration variables
+	short countPaid = 0; // count number of customers who have paid 
+	short totalCust; // total number of customers 
+	char *sMessage = malloc(75); // String for output message
+	
+	/* get the total number of customers*/
 	totalCust = countTotalCust(arrCustomer);
+	
 	for(i = 0; i < totalCust ; i++){
 		if(arrCustomer[i].status[0] == 'P')
 			countPaid++;
@@ -746,13 +916,22 @@ waiterCloseResto(struct customer* arrCustomer ,bool* boolRestoClosed)
 
 
 /*****   CHEF FUNCTIONS START    *******/
+
+/*
+This function serves as the main menu for the chef.
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ @return (void) no return value
+*/
 void
 chef(struct customer* arrCustomer, bool* boolRestoClosed)
 {
-	short nOption;
-	short i, j;
-	short nCustomerCount;
-	bool exception = true;
+	short nOption; // option for menu selection
+	short i, j; // iteration variables 
+	short nCustomerCount; // count number of customers 
+	bool exception = true; // exception handler
+	
 	while(exception){
 	
 		printf("\n\t%21s\n\t","Chef Menu");
@@ -769,11 +948,12 @@ chef(struct customer* arrCustomer, bool* boolRestoClosed)
 		scanf("%d",&nOption);
 		exception = false;
 		
+		/* count current number of customers */
 		nCustomerCount = countCustomers(arrCustomer);
 		
 		switch(nOption){
 			case 1:
-				/*** SUBJECT TO CHANGE WIEEEEE  ***/
+		
 				if(nCustomerCount == 0){
 					printf("\tNo customers at the moment\n");
 					exception = true;
@@ -782,10 +962,20 @@ chef(struct customer* arrCustomer, bool* boolRestoClosed)
 					chefViewOrder(arrCustomer, boolRestoClosed);
 				break;
 			case 2:
-				cookOrder(arrCustomer, boolRestoClosed);
+				if(nCustomerCount == 0){
+					printf("\tNo customers at the moment\n");
+					exception = true;
+				}
+				else
+					cookOrder(arrCustomer, boolRestoClosed);
 				break;
 			case 3:
-				chefDeliverOrder(arrCustomer, boolRestoClosed);
+				if(nCustomerCount == 0){
+					printf("\tNo customers at the moment\n");
+					exception = true;
+				}
+				else
+					chefDeliverOrder(arrCustomer, boolRestoClosed);
 				break;
 			case 4:
 				system("cls");
@@ -801,14 +991,22 @@ chef(struct customer* arrCustomer, bool* boolRestoClosed)
 }
 
 
+
+/*
+This function cooks N pending orders where N <= 3 .
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ @return (void) no return value
+*/
 void
 cookOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 {
-	short i, j;
+	short i, j; // iteration variables 
 	short nDishes ; // N dishes to be cooked where N <= 3
 	short cookedDishes = 0; // number dishes being cooked where N <= 3 
-	bool exception = true;
-	char *sMessage = malloc(50);
+	bool exception = true; // exception handler
+	char *sMessage = malloc(50); //string for output message
 	
 	while(exception){
 		
@@ -854,21 +1052,30 @@ cookOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 	chef(arrCustomer, boolRestoClosed);
 }
 
+
+
+/*
+This function displays the pending orders that can be cooked by the chef. It also displays 
+orders that were cooked but not yet delivered to the waiter.
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ @return (void) no return value
+*/
 void
 chefViewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 {
-	char *orderStat = malloc(50);
-	short i, j, k;
-	char *food = malloc(50);
-	short nCountPending = 0;
-	short nCountTotal;
-	short nCountNotPending = 0;
+	char *orderStat = malloc(50); // string for order status 
+	short i, j, k; // iteration variables
+	char *food = malloc(50); // string for food name
+	short nCountPending = 0; // count pending orders 
 	
 	
 	struct food foodList[] = {
 	{1, 50.00, "Siomai\0"}, {2, 90.00, "Siopao\0"}, {3, 110.00, "Pares\0"},
 	{4, 115.00, "Mami\0"}, {5, 85.00, "Chicken\0"}
 	};
+	
 	printf("\n\tPending Orders:\n");
 	printf("\t");
 	for(k = 1; k <= 34; k++)
@@ -893,11 +1100,8 @@ chefViewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 							strcpy(orderStat, "No pending orders at the moment!");	
 					}
 					else
-						strcpy(orderStat, "No pending orders at the moment!");
-					
-				}
-					
-				
+						strcpy(orderStat, "No pending orders at the moment!");	
+				}	
 			}
 		}
 	}
@@ -908,12 +1112,22 @@ chefViewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 	chef(arrCustomer, boolRestoClosed);
 } 
 
+
+/*
+This function delivers 3 COOKED orders at a time to the waiter.
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ @return (void) no return value
+*/
 void
 chefDeliverOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 {
-	short i, j;
-	short cookedDishes = 0;
-	char *sMessage = malloc(75);
+	short i, j; // iteration variables 
+	short cookedDishes = 0; // count number of cooked dishes 
+	char *sMessage = malloc(75); // string for output message 
+	
+	
 	for(i = 0; i < MAXCUST; i++){
 		if(arrCustomer[i].id != 0){
 			for(j = 0; j < arrCustomer[i].numOrder; j++){
@@ -944,7 +1158,14 @@ chefDeliverOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 
 /*****   CHEF FUNCTIONS END   *******/
 
-
+/*
+This function serves as the main menu for the whole system wherein it lets the user choose 
+whether to use a .
+ @param (struct*) arrCustomer is the pointer for the structure customer. This holds 
+ the different data of the customer (customer id, orders, number of orders, status).
+ @param(bool) boolRestoClosed indicates whether the restaurant is closed or not 
+ @return (void) no return value
+*/
 void 
 mainMenu (struct customer* arrCustomer, bool* boolRestoClosed)
 {
@@ -956,11 +1177,15 @@ mainMenu (struct customer* arrCustomer, bool* boolRestoClosed)
 	
 	char arrOptions[4][10] ={"Customer\n\0", "Waiter\n\0", "Chef\n\0", "Exit\n\0"};
 	
+	/*display line*/
 	printf("\t");
 	for(x=1; x<=34; x++)
 		printf("-");
+		
 	printf("\n\t%23s\n","Pares Express");
 	printf("\t");
+	
+	/*display line*/
 	for(x=1; x<=34; x++)
 		printf("-");
 	printf("\n");
@@ -968,6 +1193,8 @@ mainMenu (struct customer* arrCustomer, bool* boolRestoClosed)
 	while(nException){
 	
 		printf("\t%21s\n","Main Menu");
+		
+		/*display line*/
 		printf("\t");
 		for(x=1; x<=34; x++)
 			printf("-");
@@ -1010,11 +1237,16 @@ mainMenu (struct customer* arrCustomer, bool* boolRestoClosed)
 	
 }
 
-
+/*
+Main function. Stores the different data from the structure.
+ @return (int) return 0
+*/
 int 
 main()
 {
-	bool boolRestoClosed = false;
+	bool boolRestoClosed = false; // indicates whether the restaurant is closed or not 
+	
+	/*Storage of data of each customer*/ 
 	struct customer arrCustomer[] = {
 	{0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"}, {0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"}, {0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"},
 	{0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"}, {0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"}, {0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"},
@@ -1024,8 +1256,6 @@ main()
 	{0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"}, {0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"}, {0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"},
 	{0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"}, {0,0,0,"\0",0,0,"\0",0,0,"\0",1,"\0"}
 	};
-	
-
 	
 	mainMenu(arrCustomer, &boolRestoClosed);
 	
