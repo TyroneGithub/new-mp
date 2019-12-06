@@ -242,11 +242,11 @@ foodMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoClose
 {
 	short i, j, k, x; //iteration variables
 	short orderNum = arrCustomer[customerNumber - 1].numOrder;
-	short orderCount; 
+	short orderCount; // counts orders 
 	bool exception = true; // exception handlers
 	bool exception2 = true;
-	short nChoice;
-	short confirmNumOrder; 
+	short nChoice; // order choice
+	char confirmNumOrder; // confirms if the customer wants to order more or not 
 	
 	
 	struct food foodList[] = {
@@ -266,9 +266,9 @@ foodMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoClose
 		printf("\t\n\t#%03d  %-8s%10.2f",foodList[i].id, foodList[i].name,foodList[i].price);
 	}	
 	
+	/* counts the current number of orders made in the restaurant */
 	orderCount = countOrders(arrCustomer);
 
-	//printf("\n\tor count: %d\n", orderCount);
 	
 	
 	while (exception){
@@ -277,7 +277,8 @@ foodMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoClose
 		
 		if(arrCustomer[customerNumber - 1].numOrder <= 3){
 			printf("\n\n\tEnter input: ");
-			scanf(" %d",&nChoice);	
+			scanf(" %d",&nChoice);
+			//fflush(stdin);	
 			exception = false; 
 		
 			
@@ -308,14 +309,16 @@ foodMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoClose
 					if(arrCustomer[customerNumber - 1].numOrder < 3){
 						
 						printf("\n\tWould you like to order again?\n\t0 - NO/6 - YES: ");			
-						scanf(" %d",&confirmNumOrder);	
+						scanf(" %c",&confirmNumOrder);
+						fflush(stdin);
 						//getchar();
 						
-						if(confirmNumOrder == 6 ){
+						/*confirm if the customer wants to order again*/
+						if(confirmNumOrder == 'Y' || confirmNumOrder == 'y' ){
 							exception = true;
 							arrCustomer[customerNumber - 1].numOrder++;
 						}
-						else if(confirmNumOrder == 0)
+						else if(confirmNumOrder == 'N' || confirmNumOrder == 'n')
 							printf("\n\tThank you for ordering!");
 							
 						else{
@@ -347,8 +350,6 @@ This function indicates whether the customer is a new or old customer.
  
  @return (void) no return value
 */
-
-
 void 
 customer (struct customer* arrCustomer, bool* boolRestoClosed)
 {
@@ -679,7 +680,6 @@ waiter (struct customer* arrCustomer, bool* boolRestoClosed)
 				viewOrder(arrCustomer, boolRestoClosed);
 				break;
 			case 3:
-				/*** THIS FUNCTION IS SUBJECT TO CHANGE WIEEE ***/
 				if(nCustomerCount > 0) 
 					waiterSendDish(arrCustomer, boolRestoClosed);
 				else{
@@ -752,7 +752,7 @@ viewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 	char *orderStat = malloc(50); // string for order status 
 	short i, j, k; // iteration variables 
 	char *food = malloc(50); // string for food 
-	
+	short nCountOrders = 0;
 	struct food foodList[] = {
 	{1, 50.00, "Siomai\0"}, {2, 90.00, "Siopao\0"}, {3, 110.00, "Pares\0"},
 	{4, 115.00, "Mami\0"}, {5, 85.00, "Chicken\0"}
@@ -769,12 +769,16 @@ viewOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 				if(arrCustomer[i].order[j].status[0] != 'A'){
 					strcpy(orderStat, orderStatus(arrCustomer, arrCustomer[i].id, j));
 					strcpy(food, foodList[arrCustomer[i].order[j].food -1].name);
-					printf("\t%-10s%02d %14s %14s \n","Customer no.",arrCustomer[i].id,food,orderStat);	
+					printf("\t%-10s%02d %14s %14s \n","Customer no.",arrCustomer[i].id,food,orderStat);
+					nCountOrders++;
 				}
-				
+
 			}
 		}
 	}
+	if(nCountOrders <= 0)
+		printf("\n\tNo orders at the moment\n");
+	
 	printf("\n");
 	free(orderStat);
 	free(food);
@@ -1134,13 +1138,13 @@ chefDeliverOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 				if(arrCustomer[i].order[j].status[0] == 'C'){
 					arrCustomer[i].order[j].status[0] = 'D';
 					cookedDishes++;
-					strcpy(sMessage, "Cooked Dishes Delivered!");
+					strcpy(sMessage, "3 Cooked Dishes Delivered!");
 					if(cookedDishes >= 3)
 						break;
 				}
 				else {
 					if(cookedDishes > 0 && cookedDishes <= 3){
-						strcpy(sMessage, "Cooked Dishes Delivered!");
+						strcpy(sMessage, "3 Cooked Dishes Delivered!");
 						break;
 					}
 					strcpy(sMessage, "No cooked dishes can be delivered at the moment");
