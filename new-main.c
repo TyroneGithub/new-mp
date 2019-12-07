@@ -423,7 +423,7 @@ customer (struct customer* arrCustomer, bool* boolRestoClosed)
 							}
 						}
 						else{
-							printf("\n\tThe restaurant is now closed.\n\n");
+							printf("\n\tThe restaurant is closed.\n\n");
 							mainMenu(arrCustomer, boolRestoClosed);
 						}
 					}
@@ -433,8 +433,14 @@ customer (struct customer* arrCustomer, bool* boolRestoClosed)
 				if(arrCustomer[0].id == 0){
 					exception = true;
 					nOption = 0;
-					fputs("\n\tThere are no customers at the moment press enter and try again\n\n",stderr);
-					empty_stdin();
+					if(!*boolRestoClosed){
+						fputs("\n\tThere are no customers at the moment press enter and try again\n\n",stderr);
+						empty_stdin();
+					}
+					else{
+						fputs("\n\tThe restaurant is closed. Press enter to exit\n\n",stderr);
+						empty_stdin();
+					}
 				}
 				else{
 					while(exception2){
@@ -449,9 +455,9 @@ customer (struct customer* arrCustomer, bool* boolRestoClosed)
 							}
 						}
 							if (!found){
-								exception2 = true;
-								fputs("\n\tCustomer ID not found try again:\n\n",stderr);
+								fputs("\n\tCustomer ID not found returning to main menu:\n\n",stderr);
 								empty_stdin();
+								mainMenu(arrCustomer,boolRestoClosed );
 							}
 							else
 								customerMenu(arrCustomer, nCustomerNumber, boolRestoClosed);
@@ -1033,7 +1039,7 @@ chef(struct customer* arrCustomer, bool* boolRestoClosed)
 		
 		/* count current number of customers */
 		nCustomerCount = countCustomers(arrCustomer);
-		
+	
 		switch(nOption){
 			case 1:
 		
@@ -1076,6 +1082,8 @@ chef(struct customer* arrCustomer, bool* boolRestoClosed)
 				empty_stdin();
 				break;
 		}
+		
+			
 	}
 }
 
