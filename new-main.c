@@ -455,7 +455,7 @@ customer (struct customer* arrCustomer, bool* boolRestoClosed)
 							}
 						}
 							if (!found){
-								fputs("\n\tCustomer ID not found returning to main menu:\n\n",stderr);
+								fputs("\n\tCustomer ID not found / incorrect input returning to main menu:\n\n",stderr);
 								empty_stdin();
 								mainMenu(arrCustomer,boolRestoClosed );
 							}
@@ -1256,7 +1256,7 @@ chefDeliverOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 			break;
 	}
 	if(cookedDishes == 0)
-		printf("\n\t%s\n\n",cookedDishes,sMessage);
+		printf("\n\t%s\n\n",sMessage);
 	else
 		printf("\n\t%d %s\n\n",cookedDishes,sMessage);
 
