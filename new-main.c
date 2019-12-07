@@ -2,7 +2,7 @@
 Programmed by: Tyrone Sta. Maria S11A 
 Description: This program simulates a simple process in a restaurant.
 Customer -> Waiter -> Chef then Chef -> Waiter -> Customer
-Last modified: 12-06-19
+Last modified: 12-07-19
 [Ackwnoledgements:
 https://fresh2refresh.com/c-programming/c-array-of-structures/
 https://stackoverflow.com/questions/53056369/c-infinite-loop-when-char-input-instead-of-int] 
@@ -257,12 +257,16 @@ foodMenu (struct customer* arrCustomer, int customerNumber, bool* boolRestoClose
 	
 	
 	printf("\n\t%20s\n","Food Menu");
+	/* display line*/
 	printf("\t");
 	for(x=1; x<=34; x++)
 		printf("-");
 	printf("\n");
 	
+	/* heading */ 
 	printf("\t\n\t%s  %-5s%13s","Code","Name", "Price\n");
+
+	/* display menu */ 
 	for(i = 0; i < 5; i++){
 		printf("\t\n\t#%03d  %-8s%10.2f",foodList[i].id, foodList[i].name,foodList[i].price);
 	}	
@@ -377,6 +381,7 @@ customer (struct customer* arrCustomer, bool* boolRestoClosed)
 	for(x=1; x<=34; x++)
 		printf("-");
 	printf("\n");
+
 	while (exception){
 		printf("\tOld or new customer?\n");
 		printf("\t(1) New\n");
@@ -913,7 +918,8 @@ waiterDisplayIncome(struct customer* arrCustomer, bool* boolRestoClosed)
 	short i,j; // iteration variable 
 	float fTotalPaid = 0; // total paid price for the food per customer
 	float fTotalIncome = 0; // total income for the day 
-	
+	short nPaid = 0; // counts number of customers that paid.
+
 	struct food foodList[] = {
 	{1, 50.00, "Siomai\0"}, {2, 90.00, "Siopao\0"}, {3, 110.00, "Pares\0"},
 	{4, 115.00, "Mami\0"}, {5, 85.00, "Chicken\0"}
@@ -934,6 +940,7 @@ waiterDisplayIncome(struct customer* arrCustomer, bool* boolRestoClosed)
 			printf("\n\t%s %02d%12.2f","Customer no.", i + 1, fTotalPaid);
 			fTotalIncome += fTotalPaid;
 			fTotalPaid = 0;
+			nPaid++;
 		}
 	}
 	printf("\n");
@@ -942,9 +949,10 @@ waiterDisplayIncome(struct customer* arrCustomer, bool* boolRestoClosed)
 		printf("-");
 		
 	printf("\n\n\tTotal Income: %3.2f\n",fTotalIncome);
-	printf("\n\n\tTotal Customers: %3d", countTotalCust(arrCustomer));
-	printf("\n\tCurrent Customers: %d", countCustomers(arrCustomer));
-	printf("\n\tOrders Served: %5d\n\n",countOrders(arrCustomer));
+	printf("\n\n\tTotal Customers Paid: %-5d", nPaid);
+	printf("\n\tTotal Customers: %6d", countTotalCust(arrCustomer));
+	printf("\n\tCurrent Customers: %4d", countCustomers(arrCustomer));
+	printf("\n\tOrders Served: %8d\n\n",countOrders(arrCustomer));
 	waiter(arrCustomer, boolRestoClosed);
 	
 }
@@ -1220,10 +1228,12 @@ chefDeliverOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 					arrCustomer[i].order[j].status[0] = 'D';
 					cookedDishes++;
 					strcpy(sMessage, "Cooked Dish/es Delivered!");
+					// break the loop if cooked dishes >= 3
 					if(cookedDishes >= 3)
 						break;
 				}
 				else {
+					// break the loop if cooked dishes >= 3
 					if(cookedDishes > 0 && cookedDishes <= 3){
 						strcpy(sMessage, "Cooked Dish/es Delivered!");
 						break;
@@ -1233,6 +1243,7 @@ chefDeliverOrder(struct customer* arrCustomer, bool* boolRestoClosed)
 					
 			}
 		}
+		// break the loop if cooked dishes >= 3
 		if(cookedDishes >= 3)
 			break;
 	}
